@@ -1,0 +1,150 @@
+# Import necessary libraries
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Generate some sample data
+np.random.seed(0)
+X = np.random.rand(100, 1)  # Input feature
+y = 2 * X + 1 + 0.1 * np.random.randn(100, 1)  # Target variable with some noise
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create and train a linear regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+# Print the model's performance metrics
+print(f"Mean Squared Error: {mse:.2f}")
+print(f"R-squared (R2) Score: {r2:.2f}")
+
+# Plot the data and regression line (optional)
+import matplotlib.pyplot as plt
+
+plt.scatter(X_test, y_test, label='Test Data')
+plt.plot(X_test, y_pred, color='red', linewidth=2, label='Regression Line')
+plt.legend()
+plt.xlabel('X')
+plt.ylabel('y')
+plt.title('Linear Regression Example')
+plt.show()
+# Import necessary libraries
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Generate a synthetic dataset for binary classification
+X, y = make_classification(n_samples=100, n_features=2, n_informative=2, n_redundant=0, random_state=42)
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create a Logistic Regression model
+model = LogisticRegression(random_state=42)
+
+# Train the model on the training data
+model.fit(X_train, y_train)
+
+# Make predictions on the test data
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+confusion = confusion_matrix(y_test, y_pred)
+classification_rep = classification_report(y_test, y_pred)
+
+print(f"Accuracy: {accuracy}")
+print(f"Confusion Matrix:\n{confusion}")
+print(f"Classification Report:\n{classification_rep}")
+
+# Plot the decision boundary (optional)
+x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01), np.arange(y_min, y_max, 0.01))
+Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+
+plt.contourf(xx, yy, Z, alpha=0.8)
+plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.Paired)
+plt.xlabel('Feature 1')
+plt.ylabel('Feature 2')
+plt.title('Logistic Regression Decision Boundary')
+plt.show()
+# Import necessary libraries
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
+# Load and preprocess the dataset (you need to prepare your dataset)
+# You should have a dataset folder with two subfolders: 'cat' and 'non_cat'
+# Inside each subfolder, you should have the corresponding images.
+
+# Define image dimensions and batch size
+image_size = (64, 64)
+batch_size = 32
+
+# Create an ImageDataGenerator for data augmentation and preprocessing
+datagen = keras.preprocessing.image.ImageDataGenerator(
+    rescale=1./255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True,
+    validation_split=0.2  # Split data into training and validation sets
+)
+
+# Load and split the dataset
+train_generator = datagen.flow_from_directory(
+    'path_to_dataset',  # Replace with your dataset path
+    target_size=image_size,
+    batch_size=batch_size,
+    class_mode='binary',
+    subset='training'  # Training set
+)
+
+validation_generator = datagen.flow_from_directory(
+    'path_to_dataset',  # Replace with your dataset path
+    target_size=image_size,
+    batch_size=batch_size,
+    class_mode='binary',
+    subset='validation'  # Validation set
+)
+
+# Define a CNN model for image classification
+model = keras.Sequential([
+    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(image_size[0], image_size[1], 3)),
+    layers.MaxPooling2D((2, 2)),
+    layers.Flatten(),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(1, activation='sigmoid')  # Binary classification
+])
+
+# Compile the model
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# Train the model
+epochs = 10
+history = model.fit(
+    train_generator,
+    epochs=epochs,
+    validation_data=validation_generator
+)
+
+# Save the trained model
+model.save('cat_detection_model.h5')
+
+# To make predictions on new images, load the model and use model.predict()
+# For example:
+# loaded_model = keras.models.load_model('cat_detection_model.h5')
+# prediction = loaded_model.predict(new_image)
